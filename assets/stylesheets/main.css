@@ -92,6 +92,7 @@ div.nav_heading {
 	color: white;
 }
 
+
 /* MAIN */
 main {
 	position: relative;
@@ -134,7 +135,7 @@ main {
 #todo-display .delete {
 	background: none;
 	float: right;
-	padding: 15px 10px 13px 10px;
+	padding: 15px 10px 12px 10px;
 	margin: -15px 0 -15px -10px;
 	
 }
@@ -146,6 +147,9 @@ main {
 	padding: 15px 0;
 	width: 100%;
 	background: transparent url(../images/check_box.png) no-repeat 10px 46%;
+}
+#todo-display .todo:hover {
+	background-color: lightblue;
 }
 #todo-display .complete {
 	text-decoration: line-through;

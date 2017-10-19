@@ -105,19 +105,17 @@
 			<a id="add_todo"><h3>Add new todo</h3></a>
 			<ul id="todo-display">
 				<script id="todo-template" type="text/x-handlebars-template">
-					<li class="todo" data-id={{id}}>
-						<a class="todo-title">{{title}} - {{month}}/{{year}}</a>
+					<li class="todo{{#if complete}} complete{{/if}}" data-id={{id}}>
+						<a class="todo-title">{{title}} - {{#if month}}
+																								{{#if year}}
+																									{{month}}/{{year}}
+																								{{/if}}
+																							{{else}}
+																								No Date Due
+																							{{/if}}</a>
 						<a class="delete"><img src="assets/images/delete.png" alt="delete"></a>
 					</li>
 				</script>
-				<li class="todo" data-id="0">
-					<a class="todo-title">sweep up - 12/17</a>
-					<a class="delete"><img src="assets/images/delete.png" alt="delete"></a>
-				</li>
-				<li class="todo" data-id="-1">
-					<a class="todo-title">sweep up - 12/17</a>
-					<a class="delete"><img src="assets/images/delete.png" alt="delete"></a>
-				</li>
 			</ul>
 		</main>
 <!-- MODAL -->

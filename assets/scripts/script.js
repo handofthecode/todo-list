@@ -1,9 +1,6 @@
 Todo = {
-  complete: function() {
-    this.complete = true;
-  },
-  incomplete: function() {
-    this.complete = false;
+  toggleComplete: function() {
+    this.complete = this.complete ? false : true;
   },
   init: function(title, day, month, year, description, id) {
     this.title = title;
@@ -23,6 +20,11 @@ TodoList = {
       return todo.complete;
     });
   },
+  notCompleted: function() {
+    return this.all.filter(todo => {
+      return !todo.complete;
+    });
+  },
   sortByDate: function() {
     var sorted = {};
     this.all.forEach(todo => {
@@ -39,7 +41,15 @@ TodoList = {
     return this.all.length;
   },
   completedCount: function() {
-    this.completed.length;
+    return this.completed().length;
+  },
+  find: function(id) {
+    return this.all.find(todo => {
+      if (todo.id === id) return true;
+    });
+  },
+  toggleComplete: function(id) {
+    console.log(this.find(id).toggleComplete());
   },
   delete: function(id) {
     this.all = this.all.filter(todo => {
@@ -58,11 +68,21 @@ app = {
     this.$submit.on('click', this.handleSubmit.bind(this));
     this.$tint.on('click', this.handleCloseModal.bind(this));
     this.$todoDisplay.on('click', '.delete', this.handleDelete.bind(this));
+    this.$todoDisplay.on('click', '.todo', this.handleCompleteToggle.bind(this));
+    this.$todoDisplay.on('click', '.todo-title', this.handleEdit.bind(this));
+  },
+  handleEdit: function() {
+    e.stopPropagation();
+    this.showForm();
+  },
+  handleCompleteToggle: function(e) {
+    var id = e.target.closest('.todo').dataset.id;
+    this.todoList.toggleComplete(+id);
+    this.renderUpdate();
   },
   handleDelete: function(e) {
-    console.log('test')
-    var id = e.target.closest('li').dataset.id;
-
+    e.stopPropagation();
+    var id = e.target.closest('.todo').dataset.id;
     this.todoList.delete(+id);
     this.renderUpdate();
   },
@@ -87,13 +107,18 @@ app = {
   },
   updateTodoCount: function() {
     this.$todoCounts.html(this.todoList.count());
+    console.log(this.$completedCount);
     this.$completedCount.html(this.todoList.completedCount());
   },
   clearDisplay: function() {
     this.$todoDisplay.children().remove();
   },
   renderList: function() {
-    this.todoList.all.forEach(todo => {
+    this.todoList.notCompleted().forEach(todo => {
+      var element = this.createTemplate(this.todoTemplate, todo);
+      this.$todoDisplay.append(element);
+    })
+    this.todoList.completed().forEach(todo => {
       var element = this.createTemplate(this.todoTemplate, todo);
       this.$todoDisplay.append(element);
     })
