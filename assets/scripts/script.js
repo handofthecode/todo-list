@@ -6,7 +6,7 @@ Todo = {
     this.complete = false;
   },
   init: function(title, day, month, year, description, id) {
-    this.name = title;
+    this.title = title;
     this.day = day;
     this.month = month;
     this.year = year;
@@ -35,6 +35,17 @@ TodoList = {
   add: function(todo) {
     this.all.push(todo);
   },
+  count: function() {
+    return this.all.length;
+  },
+  completedCount: function() {
+    this.completed.length;
+  },
+  delete: function(id) {
+    this.all = this.all.filter(todo => {
+      return todo.id !== id;
+    })
+  },
   init: function() {
     this.all = [];
     return this;
@@ -46,6 +57,14 @@ app = {
     this.$addTodo.on('click', this.handleAddTodo.bind(this));
     this.$submit.on('click', this.handleSubmit.bind(this));
     this.$tint.on('click', this.handleCloseModal.bind(this));
+    this.$todoDisplay.on('click', '.delete', this.handleDelete.bind(this));
+  },
+  handleDelete: function(e) {
+    console.log('test')
+    var id = e.target.closest('li').dataset.id;
+
+    this.todoList.delete(+id);
+    this.renderUpdate();
   },
   handleCloseModal: function() {
     this.hideForm();
@@ -55,14 +74,28 @@ app = {
                                            this.$day.val(), 
                                            this.$month.val(),
                                            this.$year.val(),
-                                           this.$description.val());
+                                           this.$description.val(),
+                                           this.serialID++);
     this.todoList.add(todo);
     this.hideForm();
+    this.renderUpdate();
+  },
+  renderUpdate: function() {
+    this.clearDisplay();
+    this.updateTodoCount();
     this.renderList();
+  },
+  updateTodoCount: function() {
+    this.$todoCounts.html(this.todoList.count());
+    this.$completedCount.html(this.todoList.completedCount());
+  },
+  clearDisplay: function() {
+    this.$todoDisplay.children().remove();
   },
   renderList: function() {
     this.todoList.all.forEach(todo => {
-      this.createTemplate(todo);
+      var element = this.createTemplate(this.todoTemplate, todo);
+      this.$todoDisplay.append(element);
     })
   },
   handleAddTodo: function() {
@@ -83,7 +116,14 @@ app = {
   init: function() {
     this.todoList = Object.create(TodoList).init();
     this.todoTemplate = $('#todo-template').html();
+    
+    // BUTTONS
     this.$addTodo = $('#add_todo');
+
+    this.$todoDisplay = $('#todo-display');
+    this.$todoCounts = $('.todo-count');
+    this.$completedCount = $('#completed-count');
+
     this.$modal = $('#modal');
     this.$tint = $('#tint');
     this.$markAsComplete = $('#mark-as-complete');

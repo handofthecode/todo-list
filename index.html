@@ -14,8 +14,8 @@
 		<!-- TODOS NAV -->
 		<header>
 			<dl class="nav_heading">
-				<dt><span class="nav_h_todos">All Todos</span></dt>
-				<dd>18</dd>
+				<dt><span id="nav_h_todos">All Todos</span></dt>
+				<dd class="todo-count">0</dd>
 			</dl>
 			<nav class="nav_todo">
 				<ul>
@@ -53,25 +53,41 @@
 			</nav>
 
 			<!-- COMPLETED TODOS NAV -->
-			<div class="nav_heading">
-				<h2 class="nav_h_completed">Completed</h2>
-			</div>
-			<nav class="nav_completed">
+			<dl class="nav_heading">
+				<dt><span id="nav_h_completed">Completed</span></dt>
+				<dd id="completed-count">0</dd>
+			</dl>
+			<nav id="nav_completed" class="nav_todo">
 				<ul>
 					<li>
-						02/15
+						<dl>
+							<dt>02/16</dt>
+							<dd>8</dd>
+						</dl>
 					</li>
 					<li>
-						03/15
+						<dl>
+							<dt>03/16</dt>
+							<dd>2</dd>
+						</dl>
 					</li>
 					<li>
-						04/15
+						<dl>
+							<dt>04/16</dt>
+							<dd>1</dd>
+						</dl>
 					</li>
 					<li>
-						05/15
+						<dl>
+							<dt>05/16</dt>
+							<dd>1</dd>
+						</dl>
 					</li>
 					<li>
-						06/14
+						<dl>
+							<dt>06/16</dt>
+							<dd>6</dd>
+						</dl>
 					</li>
 				</ul>
 			</nav>
@@ -82,18 +98,26 @@
 			</label>
 			<!--RIGHT PANE-->
 			<dl class="main_heading">
-				<dt>02/16</dt>
-				<dd>8</dd>
+				<dt id="heading"></dt>
+				<dd class="todo-count">0</dd>
 			</dl>
 			<!--TODOS-->
 			<a id="add_todo"><h3>Add new todo</h3></a>
-			<ul class="todo_list">
+			<ul id="todo-display">
 				<script id="todo-template" type="text/x-handlebars-template">
-					<li>
-						<a class="todo">Item 1</a>
-						<a href="" class="delete"><img src="assets/images/delete.png" alt="delete"></a>
+					<li class="todo" data-id={{id}}>
+						<a class="todo-title">{{title}} - {{month}}/{{year}}</a>
+						<a class="delete"><img src="assets/images/delete.png" alt="delete"></a>
 					</li>
 				</script>
+				<li class="todo" data-id="0">
+					<a class="todo-title">sweep up - 12/17</a>
+					<a class="delete"><img src="assets/images/delete.png" alt="delete"></a>
+				</li>
+				<li class="todo" data-id="-1">
+					<a class="todo-title">sweep up - 12/17</a>
+					<a class="delete"><img src="assets/images/delete.png" alt="delete"></a>
+				</li>
 			</ul>
 		</main>
 <!-- MODAL -->

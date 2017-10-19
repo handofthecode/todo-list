@@ -68,10 +68,10 @@ header {
 .nav_heading {
 	margin-bottom: 10px;
 }
-.nav_h_todos {
+#nav_h_todos {
 	background: transparent url(../images/hamberger_white.png) no-repeat left top;
 }
-/* SELECTED TODOS */
+/* NAV TODOS */
 .nav_selected {
 	color: white;
 	background: #383f5f;
@@ -86,15 +86,10 @@ div.nav_heading {
 	margin-top: 42px;
 	margin-bottom: 5px;
 }
-h2.nav_h_completed {
+#nav_h_completed {
 	background: transparent url(../images/completed.png) no-repeat left 5%;
 	padding: 4px 0 20px 39px;
 	color: white;
-}
-.nav_completed li {
-	margin-left: 135px;
-	height: 40px;
-	text-decoration: line-through;
 }
 
 /* MAIN */
@@ -126,31 +121,33 @@ main {
 	margin-top: 40px;
 	margin-bottom: 15px;
 }
-.todo_list a {
-	padding: 15px 100px 15px 38px;
+#todo-display a {
+	margin: 15px 100px 15px 38px;
 }
-.todo {
-	background: transparent url(../images/check_box.png) no-repeat 10px 46%;
-	width: 90%;
+.todo-title {
 	color: #060606;
 }
-.todo:hover {
+.todo-title:hover {
 	color: #4ba1db;
 	cursor: pointer;
 }
-.todo_list .delete {
+#todo-display .delete {
 	background: none;
 	float: right;
-	padding: 0;
-	width: 10%;
-	text-align: right;
+	padding: 15px 10px 13px 10px;
+	margin: -15px 0 -15px -10px;
+	
 }
-.todo_list li {
+#todo-display .delete:hover {
+	background-color: #FFc9D9;
+}
+#todo-display .todo {
 	border-top: 1px solid #e7e7e7;
 	padding: 15px 0;
 	width: 100%;
+	background: transparent url(../images/check_box.png) no-repeat 10px 46%;
 }
-.todo_list .complete {
+#todo-display .complete {
 	text-decoration: line-through;
 	color: #b3b3b3;
 	background: transparent url(../images/checked_box.png) no-repeat 10px 46%;
