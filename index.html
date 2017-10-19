@@ -13,82 +13,30 @@
 	<body>
 		<!-- TODOS NAV -->
 		<header>
-			<dl class="nav_heading">
+			<dl class="nav nav_heading">
 				<dt><span id="nav_h_todos">All Todos</span></dt>
 				<dd class="todo-count">0</dd>
 			</dl>
 			<nav class="nav_todo">
-				<ul>
-					<li class="nav_selected">
-						<dl>
-							<dt>02/16</dt>
-							<dd>8</dd>
-						</dl>
-					</li>
-					<li>
-						<dl>
-							<dt>03/16</dt>
-							<dd>2</dd>
-						</dl>
-					</li>
-					<li>
-						<dl>
-							<dt>04/16</dt>
-							<dd>1</dd>
-						</dl>
-					</li>
-					<li>
-						<dl>
-							<dt>05/16</dt>
-							<dd>1</dd>
-						</dl>
-					</li>
-					<li>
-						<dl>
-							<dt>06/16</dt>
-							<dd>6</dd>
-						</dl>
-					</li>
+				<ul id="nav-todo-list">
+					<script id="nav-template" type="text/x-handlebars-template">
+						<li class="nav">
+							<dl>
+								<dt>{{date}}</dt>
+								<dd>{{count}}</dd>
+							</dl>
+						</li>		
+					</script>
 				</ul>
 			</nav>
-
 			<!-- COMPLETED TODOS NAV -->
 			<dl class="nav_heading">
 				<dt><span id="nav_h_completed">Completed</span></dt>
 				<dd id="completed-count">0</dd>
 			</dl>
 			<nav id="nav_completed" class="nav_todo">
-				<ul>
-					<li>
-						<dl>
-							<dt>02/16</dt>
-							<dd>8</dd>
-						</dl>
-					</li>
-					<li>
-						<dl>
-							<dt>03/16</dt>
-							<dd>2</dd>
-						</dl>
-					</li>
-					<li>
-						<dl>
-							<dt>04/16</dt>
-							<dd>1</dd>
-						</dl>
-					</li>
-					<li>
-						<dl>
-							<dt>05/16</dt>
-							<dd>1</dd>
-						</dl>
-					</li>
-					<li>
-						<dl>
-							<dt>06/16</dt>
-							<dd>6</dd>
-						</dl>
-					</li>
+				<ul id="nav-completed-list">
+					
 				</ul>
 			</nav>
 		</header>
@@ -122,10 +70,10 @@
 		<div id="tint">
 		</div>
 		<div id="modal">
-			<form>
+			<form data-edit-id="0">
 				<div class="form_group">
 					<label for="title">Title</label>
-					<input id="title" type="text" name="title" placeholder="" ="Item 1">
+					<input id="title" type="text" name="title" placeholder="Title">
 				</div>
 				<div class="form_group">
 					<label for="date">Due Date</label>

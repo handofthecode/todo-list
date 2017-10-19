@@ -49,6 +49,7 @@ header dl:after {
 
 /* NAV HEADINGS */
 header {
+	min-height: 900px;
 	width: 335px;
 	background: #464f77;
 	padding: 5px 0 201px 0;
@@ -78,6 +79,9 @@ header {
 }
 .nav_selected dd {
 	background: #148fd5;
+}
+.nav:hover {
+	background: #383f5f;
 }
 
 /* COMPLETED TODOS */
@@ -137,7 +141,6 @@ main {
 	float: right;
 	padding: 15px 10px 12px 10px;
 	margin: -15px 0 -15px -10px;
-	
 }
 #todo-display .delete:hover {
 	background-color: #FFc9D9;
