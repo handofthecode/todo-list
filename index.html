@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en-US">
+	<head>
+		<title>Todo List</title>
+		<meta charset="utf-8">
+		<link rel="stylesheet" type="text/css" href="assets/stylesheets/main.css">
+		<script src="https://code.jquery.com/jquery-1.12.4.js"
+		  integrity="sha256-Qw82+bXyGq6MydymqBxNPYTaUXXq7c8v3CwiYwLLNXU="
+		  crossorigin="anonymous">
+		</script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.10/handlebars.js"></script>
+	</head>
+	<body>
+		<!-- TODOS NAV -->
+		<header>
+			<dl class="nav_heading">
+				<dt><span class="nav_h_todos">All Todos</span></dt>
+				<dd>18</dd>
+			</dl>
+			<nav class="nav_todo">
+				<ul>
+					<li class="nav_selected">
+						<dl>
+							<dt>02/16</dt>
+							<dd>8</dd>
+						</dl>
+					</li>
+					<li>
+						<dl>
+							<dt>03/16</dt>
+							<dd>2</dd>
+						</dl>
+					</li>
+					<li>
+						<dl>
+							<dt>04/16</dt>
+							<dd>1</dd>
+						</dl>
+					</li>
+					<li>
+						<dl>
+							<dt>05/16</dt>
+							<dd>1</dd>
+						</dl>
+					</li>
+					<li>
+						<dl>
+							<dt>06/16</dt>
+							<dd>6</dd>
+						</dl>
+					</li>
+				</ul>
+			</nav>
+
+			<!-- COMPLETED TODOS NAV -->
+			<div class="nav_heading">
+				<h2 class="nav_h_completed">Completed</h2>
+			</div>
+			<nav class="nav_completed">
+				<ul>
+					<li>
+						02/15
+					</li>
+					<li>
+						03/15
+					</li>
+					<li>
+						04/15
+					</li>
+					<li>
+						05/15
+					</li>
+					<li>
+						06/14
+					</li>
+				</ul>
+			</nav>
+		</header>
+		<main>
+			<label class="nav_button" for="nav_toggle">
+				<img src="assets/images/hamberger_black.png" alt="menu button">
+			</label>
+			<!--RIGHT PANE-->
+			<dl class="main_heading">
+				<dt>02/16</dt>
+				<dd>8</dd>
+			</dl>
+			<!--TODOS-->
+			<a id="add_todo"><h3>Add new todo</h3></a>
+			<ul class="todo_list">
+				<script id="todo-template" type="text/x-handlebars-template">
+					<li>
+						<a class="todo">Item 1</a>
+						<a href="" class="delete"><img src="assets/images/delete.png" alt="delete"></a>
+					</li>
+				</script>
+			</ul>
+		</main>
+<!-- MODAL -->
+		<div id="tint">
+		</div>
+		<div id="modal">
+			<form>
+				<div class="form_group">
+					<label for="title">Title</label>
+					<input id="title" type="text" name="title" placeholder="" ="Item 1">
+				</div>
+				<div class="form_group">
+					<label for="date">Due Date</label>
+					<div class="input_group">
+						<input id="day" type="number" min="1" max="31" name="day" id="date" placeholder="Day">
+						/ <input id="month" type="number" min="1" max="12" name="month" placeholder="Month">
+						/ <input id="year" type="number" name="year" min="2017" placeholder="Year">
+					</div>
+				</div>
+				<div class="form_group">
+					<label for="description">Description</label>
+					<textarea id="description" placeholder="Description"></textarea>
+				</div>
+				<input id="submit" type="button" class="button" value="Save"><!--
+		 --><input id="mark-as-complete" type="button" class="button" value="Mark As Complete">
+			</form>
+		</div>
+		<script src="assets/scripts/script.js"></script>
+	</body>
+</html>
