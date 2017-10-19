@@ -13,28 +13,30 @@
 	<body>
 		<!-- TODOS NAV -->
 		<header>
-			<dl class="nav nav_heading">
+			<dl id="all-todos" class="nav nav_heading nav_selected" data-nav-id="All Todos">
 				<dt><span id="nav_h_todos">All Todos</span></dt>
 				<dd class="todo-count">0</dd>
 			</dl>
+
 			<nav class="nav_todo">
 				<ul id="nav-todo-list">
 					<script id="nav-template" type="text/x-handlebars-template">
-						<li class="nav">
+						<li class="nav" data-nav-id="{{date}}">
 							<dl>
 								<dt>{{date}}</dt>
 								<dd>{{count}}</dd>
 							</dl>
 						</li>		
 					</script>
+
 				</ul>
 			</nav>
 			<!-- COMPLETED TODOS NAV -->
-			<dl class="nav_heading">
+			<dl class="nav nav_heading" data-nav-id="Completed">
 				<dt><span id="nav_h_completed">Completed</span></dt>
 				<dd id="completed-count">0</dd>
 			</dl>
-			<nav id="nav_completed" class="nav_todo">
+			<nav class="nav_todo">
 				<ul id="nav-completed-list">
 					
 				</ul>
@@ -46,7 +48,7 @@
 			</label>
 			<!--RIGHT PANE-->
 			<dl class="main_heading">
-				<dt id="heading"></dt>
+				<dt id="heading">All Todos</dt>
 				<dd class="todo-count">0</dd>
 			</dl>
 			<!--TODOS-->
@@ -54,13 +56,7 @@
 			<ul id="todo-display">
 				<script id="todo-template" type="text/x-handlebars-template">
 					<li class="todo{{#if complete}} complete{{/if}}" data-id={{id}}>
-						<a class="todo-title">{{title}} - {{#if month}}
-																								{{#if year}}
-																									{{month}}/{{year}}
-																								{{/if}}
-																							{{else}}
-																								No Date Due
-																							{{/if}}</a>
+						<a class="todo-title">{{title}} - {{date}}</a>
 						<a class="delete"><img src="assets/images/delete.png" alt="delete"></a>
 					</li>
 				</script>

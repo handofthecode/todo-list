@@ -20,6 +20,14 @@ h2 {
 dt, dd {
 	display: inline-block;
 }
+dl {
+
+}
+.nav {
+	cursor: pointer;
+	/*z-index: 1;*/
+}
+
 dd {
 	padding: 1px 5px 1px 5px;
 	border-radius: 100%;
@@ -27,6 +35,9 @@ dd {
 }
 
 /* NAV DESCRIPTION LISTS */
+#nav-completed-list dt {
+	text-decoration: line-through;
+}
 header dt, header dd {
 	margin-top: 11px;
 }
@@ -79,9 +90,6 @@ header {
 }
 .nav_selected dd {
 	background: #148fd5;
-}
-.nav:hover {
-	background: #383f5f;
 }
 
 /* COMPLETED TODOS */
