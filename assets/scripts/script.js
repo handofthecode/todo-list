@@ -26,7 +26,7 @@ Todo = {
       this.month = title.month;
       this.year = title.year;
       this.description = title.description;
-      this.complete = false;
+      this.complete = title.complete || false;
       this.id = title.id;
     } else {
       this.title = title;
@@ -54,9 +54,12 @@ TodoList = {
       return todo[prop] === val;
     });
   },
-  matchDate: function(date, completed) {
-    completed = completed === 'completed' ? this.completed() : this.all; 
-    return completed.filter(todo => {
+  matchDate: function(date, list) {
+    if (list === 'completed') list = this.completed();
+    else if (list === 'notCompleted') list = this.notCompleted();
+    else list = this.all;
+
+    return list.filter(todo => {
       return todo.displayDate() === date;
     });
   },
@@ -81,7 +84,7 @@ TodoList = {
       return nav;
     });
   },
-  todoDisplay: function(list) {
+  todoDisplayObjects: function(list) {
     if (list === 'completed') {
       list = this.completed()
     } else if (list === undefined) {
@@ -125,8 +128,29 @@ TodoList = {
       return todo.id !== id;
     })
   },
-  init: function() {
+  saveData: function() {
+    var list = JSON.stringify(this.all);
+    localStorage.setItem('todoList', list);
+    localStorage.setItem('todoID', this.serialID);
+  },
+  loadList: function() {
     this.all = [];
+    this.loadFromStorage();
+  },
+  loadFromStorage: function() {
+    var list = JSON.parse(localStorage.getItem('todoList'));
+    var list = list || [];
+    list.forEach(properties => {
+      var todo = Object.create(Todo).init(properties);
+      this.all.push(todo);
+    });
+  },
+  loadSerialID: function() {
+    this.serialID = +localStorage.getItem('todoID') || 1;
+  },
+  init: function() {
+    this.loadList();
+    this.loadSerialID();
     return this;
   }
 }
@@ -134,13 +158,16 @@ TodoList = {
 app = {
   registerHandlers: function() {
     this.$addTodo.on('click', this.handleAddTodo.bind(this));
+    this.$form.on('keypress', 'input', this.handlePreventBadNumbers.bind(this));
+    this.$form.on('change', 'input', this.handleBadInput.bind(this));
     this.$submit.on('click', this.handleSubmit.bind(this));
     this.$tint.on('click', this.hideForm.bind(this));
     this.$todoDisplay.on('click', '.delete', this.handleDelete.bind(this));
     this.$todoDisplay.on('click', '.todo', this.handleCompleteToggle.bind(this));
     this.$todoDisplay.on('click', '.todo-title', this.handleEdit.bind(this));
     this.$markAsComplete.on('click', this.handleFormMarkComplete.bind(this));
-    $('header').on('click', '.nav', this.handleNavSelect.bind(this));
+    this.$header.on('click', '.nav', this.handleNavSelect.bind(this));
+    this.$navToggle.on('click', this.handleNavToggle.bind(this));
   },
   // UI //
   handleEdit: function(e) {
@@ -166,7 +193,7 @@ app = {
     var properties = this.getFormValues();
     var todo;
     if (id === 0) {
-      properties.id = this.serialID++;
+      properties.id = this.todoList.serialID++;
       todo = Object.create(Todo).init(properties);
       this.todoList.add(todo);
     } else {
@@ -177,6 +204,7 @@ app = {
     this.renderUpdate();
   },
   renderUpdate: function() {
+    this.todoList.saveData();
     this.updateTodoCount();
     this.updateNav();
     this.renderNav();
@@ -187,32 +215,12 @@ app = {
   handleNavSelect: function(e) {
     var $nav = $(e.target).closest('.nav');
     var navId = $nav[0].dataset.navId
-    this.clearDisplay();
-    if (navId === 'All Todos') {
-      this.renderAllTodos();
-    } else if (navId === 'Completed') {
-      this.renderCompletedTodos();
-    } else {
-      this.renderNavGroup($nav, navId);
-    }
-
+    this.selectNavToRenderToDisplay($nav, navId);
     $('.nav_selected').removeClass('nav_selected');
     $nav.addClass('nav_selected');
     this.$heading.html(navId);
   },
-  renderNavGroup: function($nav, navId) {
-    var list;
-    if (this.inCompletedNav($nav)) {
-      list = this.todoList.matchDate(navId, 'completed');
-    } else {
-      list = this.todoList.matchDate(navId);
-    };
-
-    list = this.todoList.todoDisplay(list);
-    this.renderListToDisplay(list);
-  },
   refreshDisplay: function() {
-    // needs refactor
     var navId = this.selectedNavId;
     var $nav = $('[data-nav-id="' + navId + '"]');
     
@@ -222,6 +230,9 @@ app = {
         $nav = $(el);
       }
     });
+    this.selectNavToRenderToDisplay($nav, navId);
+  },
+  selectNavToRenderToDisplay: function($nav, navId) {
     this.clearDisplay();
     if (navId === 'All Todos') {
       this.renderAllTodos();
@@ -241,16 +252,28 @@ app = {
     var $selected = $('.nav_selected');
     this.selectedNavId = $selected[0].dataset.navId;
     this.selectedNavIsCompleted = this.inCompletedNav($selected);
-    console.dir(this.selectedNavId);
-    console.log(this.selectedNavIsCompleted);
   },
   inCompletedNav: function($nav) {
     return $.contains(this.$navCompletedList[0], $nav[0]);
   },
   // NAV DISPLAY //
+  handleNavToggle: function(e) {
+    this.$header.toggle();
+  },
   renderNav: function() {
     this.allTodosNav.forEach(nav => this.appendNav(nav, this.$navTodoList));;
     this.completedTodosNav.forEach(nav => this.appendNav(nav, this.$navCompletedList));
+  },
+  renderNavGroup: function($nav, navId) {
+    var list;
+    if (!this.inCompletedNav($nav)) {
+      list = this.todoList.matchDate(navId, 'notCompleted');
+      list = this.todoList.todoDisplayObjects(list);
+      this.renderListToDisplay(list);
+    }
+    list = this.todoList.matchDate(navId, 'completed');
+    list = this.todoList.todoDisplayObjects(list);
+    this.renderListToDisplay(list);
   },
   appendNav: function(context, list) {
     var element = this.createTemplate(this.navTemplate, context);
@@ -262,11 +285,11 @@ app = {
   },
   // TODOS DISPLAY //
   renderAllTodos: function() {
-    this.renderListToDisplay(this.todoList.todoDisplay());
+    this.renderListToDisplay(this.todoList.todoDisplayObjects());
     this.renderCompletedTodos();
   },
   renderCompletedTodos: function() {
-    this.renderListToDisplay(this.todoList.todoDisplay('completed'));
+    this.renderListToDisplay(this.todoList.todoDisplayObjects('completed'));
   },
   renderListToDisplay:function(list) {
     list.forEach(todo => this.appendTodo(todo));
@@ -314,10 +337,13 @@ app = {
     }
   },
   getFormValues: function() {
+    var day = this.$day.val();
     var month = this.$month.val();
     month = month.length === 1 ? month.padStart(2, "0") : month;
+    day = day.length === 1 ? day.padStart(2, "0") : day;
+
     return { title: this.$title.val(),
-             day: this.$day.val(), 
+             day: day,
              month: month,
              year: this.$year.val(),
              description: this.$description.val(),
@@ -330,6 +356,45 @@ app = {
     this.$year.val(todo.year);
     this.$description.val(todo.description);
     this.setFormID(todo.id);
+  },
+  // VALIDATION //
+  checkForBadInput: function() {
+    return $('input[type="number"').hasClass('bad-input');
+  },
+  handleBadInput: function(e) {
+    var $target = $(e.target);
+    if (this.$day.is($target) && (this.$day.val() > 31 || this.$day.val() < 1)) {
+      this.notify($target, '1 or 2 digit day');
+    } else if (this.$day.is($target)) {
+      $target.removeClass('bad-input');
+    }
+    if (this.$month.is($target) && (this.$month.val() > 12 || this.$month.val() < 1)) {
+      this.notify($target, '1 or 2 digit month');
+    } else if (this.$month.is($target)) {
+      $target.removeClass('bad-input');
+    }
+    if (this.$year.is($target) && (this.$year.val() > 2099 || this.$year.val() < 2017)) {
+      this.notify($target, '4 digit year');
+    } else if (this.$year.is($target)) {
+      $target.removeClass('bad-input');
+    }
+
+    if (this.checkForBadInput()) this.$submit.addClass('disabled').prop('disabled', true);
+    else this.$submit.removeClass('disabled').prop('disabled', false);
+  },
+  notify: function($input, value) {
+    $('#notification').html('please enter a valid ' +  value).fadeIn().delay(3000).fadeOut();
+    $input.addClass('bad-input');
+  },
+  handlePreventBadNumbers: function(e) {
+    var target = e.target;
+    if (this.$day.is(target) && this.$day.val().length >= 2) {
+      e.preventDefault()
+    } else if (this.$month.is(target) && this.$month.val().length >= 2) {
+      e.preventDefault();
+    } else if (this.$year.is(target) && this.$year.val().length >= 4) {
+      e.preventDefault();
+    }
   },
   // HELPERS //
   createTemplate(source, context) {
@@ -346,16 +411,14 @@ app = {
     this.$form[0].dataset.editId = id;
   },
   init: function() {
-    this.todoList = Object.create(TodoList).init();
-    this.allTodosNav = [];
-    this.completedTodosNav = [];
-
     this.todoTemplate = $('#todo-template').html();
     this.navTemplate = $('#nav-template').html();
     
+    this.$navToggle = $('#nav_toggle');
     this.$addTodo = $('#add_todo');
+
+    this.$header = $('header');
     this.$heading = $('#heading');
-    this$allTodos = $('#all-todos');
 
     this.$todoDisplay = $('#todo-display');
     this.$navTodoList = $('#nav-todo-list');
@@ -377,8 +440,12 @@ app = {
     this.$markAsComplete = $('#mark-as-complete');
     this.$form = $('form');
 
-    this.serialID = 1;
+    this.todoList = Object.create(TodoList).init();
+    this.allTodosNav = [];
+    this.completedTodosNav = [];
+    this.renderUpdate();
     this.registerHandlers();
+
   }
 }
 

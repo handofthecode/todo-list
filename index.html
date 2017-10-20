@@ -13,7 +13,7 @@
 	<body>
 		<!-- TODOS NAV -->
 		<header>
-			<dl id="all-todos" class="nav nav_heading nav_selected" data-nav-id="All Todos">
+			<dl class="nav nav_heading nav_selected" data-nav-id="All Todos">
 				<dt><span id="nav_h_todos">All Todos</span></dt>
 				<dd class="todo-count">0</dd>
 			</dl>
@@ -43,7 +43,7 @@
 			</nav>
 		</header>
 		<main>
-			<label class="nav_button" for="nav_toggle">
+			<label id="nav_toggle">
 				<img src="assets/images/hamberger_black.png" alt="menu button">
 			</label>
 			<!--RIGHT PANE-->
@@ -69,19 +69,21 @@
 			<form data-edit-id="0">
 				<div class="form_group">
 					<label for="title">Title</label>
-					<input id="title" type="text" name="title" placeholder="Title">
+					<input id="title" type="text" maxlength="13" name="title" placeholder="Title">
 				</div>
 				<div class="form_group">
 					<label for="date">Due Date</label>
 					<div class="input_group">
-						<input id="day" type="number" min="1" max="31" name="day" id="date" placeholder="Day">
+						<input id="day" type="number" min="1" max="31" name="day" placeholder="Day">
 						/ <input id="month" type="number" min="1" max="12" name="month" placeholder="Month">
 						/ <input id="year" type="number" name="year" min="2017" placeholder="Year">
+						<span id="notification"></span>
+
 					</div>
 				</div>
 				<div class="form_group">
 					<label for="description">Description</label>
-					<textarea id="description" placeholder="Description"></textarea>
+					<textarea id="description" maxlength="100" placeholder="Description"></textarea>
 				</div>
 				<input id="submit" type="button" class="button" value="Save"><!--
 		 --><input id="mark-as-complete" type="button" class="button" value="Mark As Complete">
