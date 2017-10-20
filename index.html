@@ -13,7 +13,7 @@
 	<body>
 		<!-- TODOS NAV -->
 		<header>
-			<dl class="nav nav_heading nav_selected" data-nav-id="All Todos">
+			<dl id="all-todos" class="nav nav_heading nav_selected" data-nav-id="All Todos">
 				<dt><span id="nav_h_todos">All Todos</span></dt>
 				<dd class="todo-count">0</dd>
 			</dl>
@@ -32,7 +32,7 @@
 				</ul>
 			</nav>
 			<!-- COMPLETED TODOS NAV -->
-			<dl class="nav nav_heading" data-nav-id="Completed">
+			<dl id="completed" class="nav nav_heading" data-nav-id="Completed">
 				<dt><span id="nav_h_completed">Completed</span></dt>
 				<dd id="completed-count">0</dd>
 			</dl>
@@ -49,7 +49,7 @@
 			<!--RIGHT PANE-->
 			<dl class="main_heading">
 				<dt id="heading">All Todos</dt>
-				<dd class="todo-count">0</dd>
+				<dd id="display-count" class="todo-count">0</dd>
 			</dl>
 			<!--TODOS-->
 			<a id="add_todo"><h3>Add new todo</h3></a>
@@ -69,7 +69,7 @@
 			<form data-edit-id="0">
 				<div class="form_group">
 					<label for="title">Title</label>
-					<input id="title" type="text" maxlength="13" name="title" placeholder="Title">
+					<input id="title" type="text" maxlength="18" name="title" placeholder="Title">
 				</div>
 				<div class="form_group">
 					<label for="date">Due Date</label>

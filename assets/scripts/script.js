@@ -48,9 +48,8 @@ TodoList = {
   notCompleted: function() {
     return this.match('complete', false);
   },
-  match: function(prop, val, completed) {
-    completed = completed === 'completed' ? this.completed() : this.all; 
-    return completed.filter(todo => {
+  match: function(prop, val) {
+    return this.all.filter(todo => {
       return todo[prop] === val;
     });
   },
@@ -67,13 +66,17 @@ TodoList = {
     var ids = {};
     list = list === 'completed' ? this.completed() : this.all; 
     
+    // e.g. {12/18: [1,2,4], "No Date Due": [3,5,7]} //
     list.forEach(todo => {
       var date = todo.displayDate();
       ids[date] = ids[date] || [];
       ids[date].push(todo.id);
     });
     
+    // e.g. {"No Date Due", "12/18"} //
     var orderedDates = Object.keys(ids).sort((a, b) => {
+      if (a === "No Date Due") a = '-1';
+      if (b === "No Date Due") b = '-1'; 
       return a.split('/').reverse().join('') - b.split('/').reverse().join('');
     });
 
@@ -189,6 +192,7 @@ app = {
     this.renderUpdate();
   },
   handleSubmit: function() {
+    var navId;
     var id = +this.getFormID();
     var properties = this.getFormValues();
     var todo;
@@ -196,43 +200,54 @@ app = {
       properties.id = this.todoList.serialID++;
       todo = Object.create(Todo).init(properties);
       this.todoList.add(todo);
+      // set nav to "All Todos"
+      navId = 'All Todos';
     } else {
       this.todoList.update(id, properties);
       this.setFormID(0);
     }
     this.hideForm();
-    this.renderUpdate();
+    this.renderUpdate(navId);
   },
-  renderUpdate: function() {
+  renderUpdate: function(navId) {
     this.todoList.saveData();
     this.updateTodoCount();
     this.updateNav();
     this.renderNav();
     this.clearDisplay();
-    this.refreshDisplay();
+    this.refreshDisplay(navId);
   },
   // NAV //
   handleNavSelect: function(e) {
     var $nav = $(e.target).closest('.nav');
     var navId = $nav[0].dataset.navId
-    this.selectNavToRenderToDisplay($nav, navId);
+    this.refreshDisplay(navId, $nav);
+  },
+  refreshDisplay: function(navId, $nav) {
+    navId = navId || this.selectedNavId;
+    $nav = $nav || this.retrieveNavCategory(navId); 
+    this.highlightNavGroup($nav);
+    this.renderNavToDisplay($nav, navId);
+    this.setDisplayHeading($nav, navId);
+  },
+  setDisplayHeading: function($nav, navId) {
+    console.log($nav.find('dd').html())
+    this.$heading.html(navId);
+    this.$displayCount.html($nav.find('dd').html());
+  },
+  retrieveNavCategory: function(navId) {
+    var $nav = $('[data-nav-id="' + navId + '"]') || $('#all-todos');
+    $nav.each((i, el) => {
+      if (this.inCompletedNav($(el)) === this.selectedNavIsCompleted) { $nav = $(el) }
+    });
+
+    return $nav;
+  },
+  highlightNavGroup: function($nav) {
     $('.nav_selected').removeClass('nav_selected');
     $nav.addClass('nav_selected');
-    this.$heading.html(navId);
   },
-  refreshDisplay: function() {
-    var navId = this.selectedNavId;
-    var $nav = $('[data-nav-id="' + navId + '"]');
-    
-    $nav.each((i, el) => {
-      if (this.inCompletedNav($(el)) === this.selectedNavIsCompleted) {
-        el.classList.add('nav_selected');
-        $nav = $(el);
-      }
-    });
-    this.selectNavToRenderToDisplay($nav, navId);
-  },
-  selectNavToRenderToDisplay: function($nav, navId) {
+  renderNavToDisplay: function($nav, navId) {
     this.clearDisplay();
     if (navId === 'All Todos') {
       this.renderAllTodos();
@@ -240,6 +255,7 @@ app = {
       this.renderCompletedTodos();
     } else {
       this.renderNavGroup($nav, navId);
+      console.log(navId);
     }
   },
   updateNav: function() {
@@ -289,6 +305,7 @@ app = {
     this.renderCompletedTodos();
   },
   renderCompletedTodos: function() {
+    console.log('test');
     this.renderListToDisplay(this.todoList.todoDisplayObjects('completed'));
   },
   renderListToDisplay:function(list) {
@@ -299,7 +316,7 @@ app = {
     this.$todoDisplay.append(element);
   },
   updateTodoCount: function() {
-    this.$todoCounts.html(this.todoList.count());
+    this.$allTodoCount.html(this.todoList.count());
     this.$completedCount.html(this.todoList.completedCount());
   },
   clearDisplay: function() {
@@ -411,22 +428,29 @@ app = {
     this.$form[0].dataset.editId = id;
   },
   init: function() {
+    this.$heading = $('#heading');
+
+    // HANDLEBARS TEMPLATES //
     this.todoTemplate = $('#todo-template').html();
     this.navTemplate = $('#nav-template').html();
     
+    // BUTTONS
     this.$navToggle = $('#nav_toggle');
     this.$addTodo = $('#add_todo');
 
-    this.$header = $('header');
-    this.$heading = $('#heading');
-
+    // TODO & NAV Lists //
     this.$todoDisplay = $('#todo-display');
+    this.$navCompleted = $('#completed');
     this.$navTodoList = $('#nav-todo-list');
     this.$navCompletedList = $('#nav-completed-list');
+    this.$header = $('header');
 
-    this.$todoCounts = $('.todo-count');
+    // COUNTERS //
+    this.$displayCount = $('#display-count');
+    this.$allTodoCount = $('header .todo-count');
     this.$completedCount = $('#completed-count');
 
+    // MODAL //
     this.$modal = $('#modal');
     this.$tint = $('#tint');
 
@@ -445,7 +469,6 @@ app = {
     this.completedTodosNav = [];
     this.renderUpdate();
     this.registerHandlers();
-
   }
 }
 
