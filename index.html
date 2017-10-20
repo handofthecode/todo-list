@@ -12,7 +12,8 @@
 	</head>
 	<body>
 		<!-- TODOS NAV -->
-		<header>
+		<div class="float-wrap">
+		<header class="hidden">
 			<dl id="all-todos" class="nav nav_heading nav_selected" data-nav-id="All Todos">
 				<dt><span id="nav_h_todos">All Todos</span></dt>
 				<dd class="todo-count">0</dd>
@@ -42,6 +43,7 @@
 				</ul>
 			</nav>
 		</header>
+	</div>
 		<main>
 			<label id="nav_toggle">
 				<img src="assets/images/hamberger_black.png" alt="menu button">
@@ -72,7 +74,7 @@
 					<input id="title" type="text" maxlength="18" name="title" placeholder="Title">
 				</div>
 				<div class="form_group">
-					<label for="date">Due Date</label>
+					<label for="day">Due Date</label>
 					<div class="input_group">
 						<input id="day" type="number" min="1" max="31" name="day" placeholder="Day">
 						/ <input id="month" type="number" min="1" max="12" name="month" placeholder="Month">

@@ -37,9 +37,10 @@ Todo = {
       this.complete = false;
       this.id = id;
     }
+
     return this;
-  },
-}
+  }
+};
 
 TodoList = {
   completed: function() {
@@ -64,22 +65,23 @@ TodoList = {
   },
   orderedNavObjects: function(list) {
     var ids = {};
-    list = list === 'completed' ? this.completed() : this.all; 
-    
-    // e.g. {12/18: [1,2,4], "No Date Due": [3,5,7]} //
+    list = list === 'completed' ? this.completed() : this.all;
+
+    // e.g. {12/18: [1,2,4,6,8], "No Date Due": [3,5,7]} //
     list.forEach(todo => {
       var date = todo.displayDate();
       ids[date] = ids[date] || [];
       ids[date].push(todo.id);
     });
-    
-    // e.g. {"No Date Due", "12/18"} //
+
+    // e.g. ["No Date Due", "12/18"] //
     var orderedDates = Object.keys(ids).sort((a, b) => {
       if (a === "No Date Due") a = '-1';
-      if (b === "No Date Due") b = '-1'; 
+      if (b === "No Date Due") b = '-1';
       return a.split('/').reverse().join('') - b.split('/').reverse().join('');
     });
 
+    // e.g. [{"No Date Due": 3}, {"12/18": 5}] //
     return orderedDates.map(date => {
       var nav = {};
       nav.date = date;
@@ -89,9 +91,9 @@ TodoList = {
   },
   todoDisplayObjects: function(list) {
     if (list === 'completed') {
-      list = this.completed()
+      list = this.completed();
     } else if (list === undefined) {
-      list = this.notCompleted(); 
+      list = this.notCompleted();
     } // otherwise list is array //
 
     return list.map(todo => {
@@ -100,8 +102,8 @@ TodoList = {
         date: todo.displayDate(),
         title: todo.title,
         complete: todo.complete,
-      }
-    })
+      };
+    });
   },
   add: function(todo) {
     this.all.push(todo);
@@ -129,7 +131,7 @@ TodoList = {
   delete: function(id) {
     this.all = this.all.filter(todo => {
       return todo.id !== id;
-    })
+    });
   },
   saveData: function() {
     var list = JSON.stringify(this.all);
@@ -141,8 +143,7 @@ TodoList = {
     this.loadFromStorage();
   },
   loadFromStorage: function() {
-    var list = JSON.parse(localStorage.getItem('todoList'));
-    var list = list || [];
+    var list = JSON.parse(localStorage.getItem('todoList')) || [];
     list.forEach(properties => {
       var todo = Object.create(Todo).init(properties);
       this.all.push(todo);
@@ -156,13 +157,13 @@ TodoList = {
     this.loadSerialID();
     return this;
   }
-}
+};
 
 app = {
   registerHandlers: function() {
     this.$addTodo.on('click', this.handleAddTodo.bind(this));
     this.$form.on('keypress', 'input', this.handlePreventBadNumbers.bind(this));
-    this.$form.on('change', 'input', this.handleBadInput.bind(this));
+    this.$form.on('blur', 'input', this.handleBadInput.bind(this));
     this.$submit.on('click', this.handleSubmit.bind(this));
     this.$tint.on('click', this.hideForm.bind(this));
     this.$todoDisplay.on('click', '.delete', this.handleDelete.bind(this));
@@ -176,7 +177,7 @@ app = {
   handleEdit: function(e) {
     e.stopPropagation();
     var id = this.todoIdFromEvent(e);
-    var todo = this.todoList.find(id)
+    var todo = this.todoList.find(id);
     this.populateForm(todo);
     this.showForm();
   },
@@ -192,6 +193,7 @@ app = {
     this.renderUpdate();
   },
   handleSubmit: function() {
+    if (this.$submit.hasClass('disabled')) e.preventDefault();
     var navId;
     var id = +this.getFormID();
     var properties = this.getFormValues();
@@ -200,7 +202,6 @@ app = {
       properties.id = this.todoList.serialID++;
       todo = Object.create(Todo).init(properties);
       this.todoList.add(todo);
-      // set nav to "All Todos"
       navId = 'All Todos';
     } else {
       this.todoList.update(id, properties);
@@ -220,25 +221,24 @@ app = {
   // NAV //
   handleNavSelect: function(e) {
     var $nav = $(e.target).closest('.nav');
-    var navId = $nav[0].dataset.navId
+    var navId = $nav[0].dataset.navId;
     this.refreshDisplay(navId, $nav);
   },
   refreshDisplay: function(navId, $nav) {
     navId = navId || this.selectedNavId;
-    $nav = $nav || this.retrieveNavCategory(navId); 
+    $nav = $nav || this.retrieveNavCategory(navId);
     this.highlightNavGroup($nav);
     this.renderNavToDisplay($nav, navId);
     this.setDisplayHeading($nav, navId);
   },
   setDisplayHeading: function($nav, navId) {
-    console.log($nav.find('dd').html())
     this.$heading.html(navId);
     this.$displayCount.html($nav.find('dd').html());
   },
   retrieveNavCategory: function(navId) {
     var $nav = $('[data-nav-id="' + navId + '"]') || $('#all-todos');
     $nav.each((i, el) => {
-      if (this.inCompletedNav($(el)) === this.selectedNavIsCompleted) { $nav = $(el) }
+      if (this.inCompletedNav($(el)) === this.selectedNavIsCompleted) { $nav = $(el); }
     });
 
     return $nav;
@@ -255,7 +255,6 @@ app = {
       this.renderCompletedTodos();
     } else {
       this.renderNavGroup($nav, navId);
-      console.log(navId);
     }
   },
   updateNav: function() {
@@ -274,10 +273,10 @@ app = {
   },
   // NAV DISPLAY //
   handleNavToggle: function(e) {
-    this.$header.toggle();
+    this.$header.toggleClass('hidden');
   },
   renderNav: function() {
-    this.allTodosNav.forEach(nav => this.appendNav(nav, this.$navTodoList));;
+    this.allTodosNav.forEach(nav => this.appendNav(nav, this.$navTodoList));
     this.completedTodosNav.forEach(nav => this.appendNav(nav, this.$navCompletedList));
   },
   renderNavGroup: function($nav, navId) {
@@ -305,7 +304,6 @@ app = {
     this.renderCompletedTodos();
   },
   renderCompletedTodos: function() {
-    console.log('test');
     this.renderListToDisplay(this.todoList.todoDisplayObjects('completed'));
   },
   renderListToDisplay:function(list) {
@@ -364,7 +362,7 @@ app = {
              month: month,
              year: this.$year.val(),
              description: this.$description.val(),
-           };       
+           };
   },
   populateForm: function(todo) {
     this.$title.val(todo.title);
@@ -381,23 +379,23 @@ app = {
   handleBadInput: function(e) {
     var $target = $(e.target);
     if (this.$day.is($target) && (this.$day.val() > 31 || this.$day.val() < 1)) {
-      this.notify($target, '1 or 2 digit day');
+      this.notify($target, '1 or 2 digit day (e.g. 14)');
     } else if (this.$day.is($target)) {
       $target.removeClass('bad-input');
     }
     if (this.$month.is($target) && (this.$month.val() > 12 || this.$month.val() < 1)) {
-      this.notify($target, '1 or 2 digit month');
+      this.notify($target, '1 or 2 digit month (e.g. 12)');
     } else if (this.$month.is($target)) {
       $target.removeClass('bad-input');
     }
     if (this.$year.is($target) && (this.$year.val() > 2099 || this.$year.val() < 2017)) {
-      this.notify($target, '4 digit year');
+      this.notify($target, '4 digit year (e.g. 2019)');
     } else if (this.$year.is($target)) {
       $target.removeClass('bad-input');
     }
 
-    if (this.checkForBadInput()) this.$submit.addClass('disabled').prop('disabled', true);
-    else this.$submit.removeClass('disabled').prop('disabled', false);
+    if (this.checkForBadInput()) this.$submit.addClass('disabled');
+    else this.$submit.removeClass('disabled');
   },
   notify: function($input, value) {
     $('#notification').html('please enter a valid ' +  value).fadeIn().delay(3000).fadeOut();
@@ -406,7 +404,7 @@ app = {
   handlePreventBadNumbers: function(e) {
     var target = e.target;
     if (this.$day.is(target) && this.$day.val().length >= 2) {
-      e.preventDefault()
+      e.preventDefault();
     } else if (this.$month.is(target) && this.$month.val().length >= 2) {
       e.preventDefault();
     } else if (this.$year.is(target) && this.$year.val().length >= 4) {
@@ -433,7 +431,7 @@ app = {
     // HANDLEBARS TEMPLATES //
     this.todoTemplate = $('#todo-template').html();
     this.navTemplate = $('#nav-template').html();
-    
+
     // BUTTONS
     this.$navToggle = $('#nav_toggle');
     this.$addTodo = $('#add_todo');
@@ -459,7 +457,7 @@ app = {
     this.$day = $('#day');
     this.$month = $('#month');
     this.$year = $('#year');
-    this.$description = $('#description')
+    this.$description = $('#description');
     this.$submit = $('#submit');
     this.$markAsComplete = $('#mark-as-complete');
     this.$form = $('form');
@@ -470,6 +468,6 @@ app = {
     this.renderUpdate();
     this.registerHandlers();
   }
-}
+};
 
 app.init();
