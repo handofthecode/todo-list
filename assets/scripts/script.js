@@ -142,60 +142,13 @@ app = {
     this.$markAsComplete.on('click', this.handleFormMarkComplete.bind(this));
     $('header').on('click', '.nav', this.handleNavSelect.bind(this));
   },
-  handleNavSelect: function(e) {
-    var nav = $(e.target).closest('.nav');
-    var navId = nav[0].dataset.navId
-    this.clearDisplay();
-    if (navId === 'All Todos') {
-      this.renderAllTodos();
-    } else if (navId === 'Completed') {
-      this.renderCompletedTodos();
-    } else {
-      this.renderNavGroup(nav, navId);
-    }
-
-    $('.nav_selected').removeClass('nav_selected');
-    nav.addClass('nav_selected');
-    this.$heading.html(navId);
-  },
-  renderNavGroup: function(nav, navId) {
-    var list;
-    if ($.contains(this.$navCompletedList[0], nav[0])) {
-      list = this.todoList.matchDate(navId, 'completed');
-    } else {
-      list = this.todoList.matchDate(navId);
-    };
-
-    list = this.todoList.todoDisplay(list);
-    this.renderListToDisplay(list);
-  },
-  handleFormMarkComplete: function() {
-    var id = +this.getFormID();
-    if (id === 0) {
-      alert('Cannot mark as complete as item has not been created yet!');
-    } else {
-      this.todoList.markComplete(id);
-      this.renderUpdate();
-      this.hideForm();
-    }
-  },
+  // UI //
   handleEdit: function(e) {
     e.stopPropagation();
     var id = this.todoIdFromEvent(e);
     var todo = this.todoList.find(id)
     this.populateForm(todo);
     this.showForm();
-  },
-  populateForm: function(todo) {
-    this.$title.val(todo.title);
-    this.$day.val(todo.day);
-    this.$month.val(todo.month);
-    this.$year.val(todo.year);
-    this.$description.val(todo.description);
-    this.setFormID(todo.id);
-  },
-  todoIdFromEvent: function(event) {
-    return +event.target.closest('.todo').dataset.id;
   },
   handleCompleteToggle: function(e) {
     var id = this.todoIdFromEvent(e);
@@ -224,18 +177,77 @@ app = {
     this.renderUpdate();
   },
   renderUpdate: function() {
-    this.clearDisplay();
     this.updateTodoCount();
     this.updateNav();
-    this.renderAllTodos();
     this.renderNav();
+    this.clearDisplay();
+    this.refreshDisplay();
   },
   // NAV //
+  handleNavSelect: function(e) {
+    var $nav = $(e.target).closest('.nav');
+    var navId = $nav[0].dataset.navId
+    this.clearDisplay();
+    if (navId === 'All Todos') {
+      this.renderAllTodos();
+    } else if (navId === 'Completed') {
+      this.renderCompletedTodos();
+    } else {
+      this.renderNavGroup($nav, navId);
+    }
+
+    $('.nav_selected').removeClass('nav_selected');
+    $nav.addClass('nav_selected');
+    this.$heading.html(navId);
+  },
+  renderNavGroup: function($nav, navId) {
+    var list;
+    if (this.inCompletedNav($nav)) {
+      list = this.todoList.matchDate(navId, 'completed');
+    } else {
+      list = this.todoList.matchDate(navId);
+    };
+
+    list = this.todoList.todoDisplay(list);
+    this.renderListToDisplay(list);
+  },
+  refreshDisplay: function() {
+    // needs refactor
+    var navId = this.selectedNavId;
+    var $nav = $('[data-nav-id="' + navId + '"]');
+    
+    $nav.each((i, el) => {
+      if (this.inCompletedNav($(el)) === this.selectedNavIsCompleted) {
+        el.classList.add('nav_selected');
+        $nav = $(el);
+      }
+    });
+    this.clearDisplay();
+    if (navId === 'All Todos') {
+      this.renderAllTodos();
+    } else if (navId === 'Completed') {
+      this.renderCompletedTodos();
+    } else {
+      this.renderNavGroup($nav, navId);
+    }
+  },
   updateNav: function() {
+    if ($('.nav_selected').length !== 0) this.storeSelectedNavGroup();
     this.clearNav();
     this.allTodosNav = this.todoList.orderedNavObjects();
     this.completedTodosNav = this.todoList.orderedNavObjects('completed');
   },
+  storeSelectedNavGroup: function() {
+    var $selected = $('.nav_selected');
+    this.selectedNavId = $selected[0].dataset.navId;
+    this.selectedNavIsCompleted = this.inCompletedNav($selected);
+    console.dir(this.selectedNavId);
+    console.log(this.selectedNavIsCompleted);
+  },
+  inCompletedNav: function($nav) {
+    return $.contains(this.$navCompletedList[0], $nav[0]);
+  },
+  // NAV DISPLAY //
   renderNav: function() {
     this.allTodosNav.forEach(nav => this.appendNav(nav, this.$navTodoList));;
     this.completedTodosNav.forEach(nav => this.appendNav(nav, this.$navCompletedList));
@@ -291,6 +303,16 @@ app = {
     this.$tint.fadeOut();
     this.$modal.fadeOut();
   },
+  handleFormMarkComplete: function() {
+    var id = +this.getFormID();
+    if (id === 0) {
+      alert('Cannot mark as complete as item has not been created yet!');
+    } else {
+      this.todoList.markComplete(id);
+      this.renderUpdate();
+      this.hideForm();
+    }
+  },
   getFormValues: function() {
     var month = this.$month.val();
     month = month.length === 1 ? month.padStart(2, "0") : month;
@@ -301,15 +323,27 @@ app = {
              description: this.$description.val(),
            };       
   },
+  populateForm: function(todo) {
+    this.$title.val(todo.title);
+    this.$day.val(todo.day);
+    this.$month.val(todo.month);
+    this.$year.val(todo.year);
+    this.$description.val(todo.description);
+    this.setFormID(todo.id);
+  },
+  // HELPERS //
+  createTemplate(source, context) {
+    var template = Handlebars.compile(source);
+    return template(context);
+  },
+  todoIdFromEvent: function(event) {
+    return +event.target.closest('.todo').dataset.id;
+  },
   getFormID: function() {
     return this.$form[0].dataset.editId;
   },
   setFormID: function(id) {
     this.$form[0].dataset.editId = id;
-  },
-  createTemplate(source, context) {
-    var template = Handlebars.compile(source);
-    return template(context);
   },
   init: function() {
     this.todoList = Object.create(TodoList).init();
