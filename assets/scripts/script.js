@@ -240,8 +240,9 @@ app = {
     this.setDisplayHeading($nav, navId);
   },
   setDisplayHeading: function($nav, navId) {
+    var count = $nav.find('dd').html() || '0';
     this.$heading.html(navId);
-    this.$displayCount.html($nav.find('dd').html());
+    this.$displayCount.html(count);
   },
   retrieveNavCategory: function(navId) {
     var $nav = $('[data-nav-id="' + navId + '"]') || $('#all-todos');
@@ -398,17 +399,17 @@ app = {
       $target.removeClass('bad-input');
     } else {
       if (this.$day.is($target) && (this.$day.val() > 31 || this.$day.val() < 1)) {
-        this.notify($target, 'day between 1-31');
+        this.notify($target, 'day between 1-31.');
       } else if (this.$day.is($target)) {
         $target.removeClass('bad-input');
       }
       if (this.$month.is($target) && (this.$month.val() > 12 || this.$month.val() < 1)) {
-        this.notify($target, 'month between 1-12');
+        this.notify($target, 'month between 1-12.');
       } else if (this.$month.is($target)) {
         $target.removeClass('bad-input');
       }
       if (this.$year.is($target) && (this.$year.val() > 2099 || this.$year.val() < 2017)) {
-        this.notify($target, '4 digit year between 2017-2099');
+        this.notify($target, '4 digit year between 2017-2099.');
       } else if (this.$year.is($target)) {
         $target.removeClass('bad-input');
       }
@@ -417,7 +418,7 @@ app = {
     else this.enableSubmit();
   },
   notify: function($input, value) {
-    this.$notification.html('please enter a valid ' +  value).fadeIn().delay(3000).fadeOut();
+    this.$notification.html('Please enter a valid ' +  value).fadeIn().delay(3000).fadeOut();
     $input.addClass('bad-input');
   },
   handleCheckBadInputFixed: function(e) {

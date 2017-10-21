@@ -237,6 +237,7 @@ form input, form textarea {
 	display: none;
 	color: darkred;
 	position: absolute;
+	margin-top: 2px;
 }
 input.bad-input {
 	border: solid 1px red;
