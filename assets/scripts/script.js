@@ -171,7 +171,7 @@ app = {
     this.$addTodo.on('click', this.handleAddTodo.bind(this));
     this.$form.on('keypress', 'input', this.handlePreventBadNumbers.bind(this));
     this.$form.on('blur', 'input', this.handleBadInput.bind(this));
-    this.$form.on('keyup', '.bad-input', this.handleFixedInput.bind(this));
+    this.$form.on('keyup', '.bad-input', this.handleCheckBadInputFixed.bind(this));
     this.$submit.on('click', this.handleSubmit.bind(this));
     this.$tint.on('click', this.hideForm.bind(this));
     this.$todoDisplay.on('click', '.delete', this.handleDelete.bind(this));
@@ -394,22 +394,25 @@ app = {
   },
   handleBadInput: function(e) {
     var $target = $(e.target);
-    if (this.$day.is($target) && (this.$day.val() > 31 || this.$day.val() < 1)) {
-      this.notify($target, '1 or 2 digit day (e.g. 14)');
-    } else if (this.$day.is($target)) {
+    if ($target.val() === '') {
       $target.removeClass('bad-input');
+    } else {
+      if (this.$day.is($target) && (this.$day.val() > 31 || this.$day.val() < 1)) {
+        this.notify($target, 'day between 1-31');
+      } else if (this.$day.is($target)) {
+        $target.removeClass('bad-input');
+      }
+      if (this.$month.is($target) && (this.$month.val() > 12 || this.$month.val() < 1)) {
+        this.notify($target, 'month between 1-12');
+      } else if (this.$month.is($target)) {
+        $target.removeClass('bad-input');
+      }
+      if (this.$year.is($target) && (this.$year.val() > 2099 || this.$year.val() < 2017)) {
+        this.notify($target, '4 digit year between 2017-2099');
+      } else if (this.$year.is($target)) {
+        $target.removeClass('bad-input');
+      }
     }
-    if (this.$month.is($target) && (this.$month.val() > 12 || this.$month.val() < 1)) {
-      this.notify($target, '1 or 2 digit month (e.g. 12)');
-    } else if (this.$month.is($target)) {
-      $target.removeClass('bad-input');
-    }
-    if (this.$year.is($target) && (this.$year.val() > 2099 || this.$year.val() < 2017)) {
-      this.notify($target, '4 digit year between 2017-2099');
-    } else if (this.$year.is($target)) {
-      $target.removeClass('bad-input');
-    }
-
     if (this.checkForBadInput()) this.disableSubmit();
     else this.enableSubmit();
   },
@@ -417,9 +420,11 @@ app = {
     this.$notification.html('please enter a valid ' +  value).fadeIn().delay(3000).fadeOut();
     $input.addClass('bad-input');
   },
-  handleFixedInput: function(e) {
+  handleCheckBadInputFixed: function(e) {
     var $target = $(e.target);
-    if (this.$day.is($target) && this.$day.val() <= 31 && this.$day.val() >= 1) {
+    if ($target.val() === '') {
+      $target.removeClass('bad-input');
+    } else if (this.$day.is($target) && this.$day.val() <= 31 && this.$day.val() >= 1) {
       $target.removeClass('bad-input');
     } else if (this.$month.is($target) && this.$month.val() <= 12 && this.$month.val() >= 1) {
       $target.removeClass('bad-input');
@@ -430,7 +435,7 @@ app = {
   },
   handlePreventBadNumbers: function(e) {
     var target = e.target;
-    if (window.getSelection().toString() !== '') {
+    if (window.getSelection().toString() !== '' || target.value === '') {
     } else if (this.$day.is(target) && this.$day.val().length >= 2) {
       e.preventDefault();
     } else if (this.$month.is(target) && this.$month.val().length >= 2) {
