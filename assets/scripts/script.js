@@ -152,9 +152,16 @@ TodoList = {
   loadSerialID: function() {
     this.serialID = +localStorage.getItem('todoID') || 1;
   },
+  checkDataIntegrity: function() {
+    if (this.serialID === 1 || this.all.length === 0) {
+      this.serialID = 1;
+      this.all = [];
+    }
+  },
   init: function() {
     this.loadList();
     this.loadSerialID();
+    this.checkDataIntegrity();
     return this;
   }
 };
@@ -164,6 +171,7 @@ app = {
     this.$addTodo.on('click', this.handleAddTodo.bind(this));
     this.$form.on('keypress', 'input', this.handlePreventBadNumbers.bind(this));
     this.$form.on('blur', 'input', this.handleBadInput.bind(this));
+    this.$form.on('keyup', '.bad-input', this.handleFixedInput.bind(this));
     this.$submit.on('click', this.handleSubmit.bind(this));
     this.$tint.on('click', this.hideForm.bind(this));
     this.$todoDisplay.on('click', '.delete', this.handleDelete.bind(this));
@@ -192,8 +200,8 @@ app = {
     this.todoList.delete(id);
     this.renderUpdate();
   },
-  handleSubmit: function() {
-    if (this.$submit.hasClass('disabled')) e.preventDefault();
+  handleSubmit: function(e) {
+    if (this.$submit.hasClass('disabled')) return;
     var navId;
     var id = +this.getFormID();
     var properties = this.getFormValues();
@@ -321,7 +329,6 @@ app = {
     this.$todoDisplay.children().remove();
   },
   handleAddTodo: function() {
-    this.clearForm();
     this.showForm();
   },
   // FORM //
@@ -333,6 +340,9 @@ app = {
     this.$description.val('');
   },
   showForm: function() {
+    $('.bad-input').removeClass('bad-input');
+    this.$notification.hide();
+    this.clearForm();
     this.$tint.fadeIn();
     this.$modal.fadeIn();
   },
@@ -374,7 +384,13 @@ app = {
   },
   // VALIDATION //
   checkForBadInput: function() {
-    return $('input[type="number"').hasClass('bad-input');
+    return $('.bad-input').length !== 0;
+  },
+  disableSubmit: function() {
+    this.$submit.addClass('disabled');
+  },
+  enableSubmit: function() {
+    this.$submit.removeClass('disabled');
   },
   handleBadInput: function(e) {
     var $target = $(e.target);
@@ -389,21 +405,33 @@ app = {
       $target.removeClass('bad-input');
     }
     if (this.$year.is($target) && (this.$year.val() > 2099 || this.$year.val() < 2017)) {
-      this.notify($target, '4 digit year (e.g. 2019)');
+      this.notify($target, '4 digit year between 2017-2099');
     } else if (this.$year.is($target)) {
       $target.removeClass('bad-input');
     }
 
-    if (this.checkForBadInput()) this.$submit.addClass('disabled');
-    else this.$submit.removeClass('disabled');
+    if (this.checkForBadInput()) this.disableSubmit();
+    else this.enableSubmit();
   },
   notify: function($input, value) {
-    $('#notification').html('please enter a valid ' +  value).fadeIn().delay(3000).fadeOut();
+    this.$notification.html('please enter a valid ' +  value).fadeIn().delay(3000).fadeOut();
     $input.addClass('bad-input');
+  },
+  handleFixedInput: function(e) {
+    var $target = $(e.target);
+    if (this.$day.is($target) && this.$day.val() <= 31 && this.$day.val() >= 1) {
+      $target.removeClass('bad-input');
+    } else if (this.$month.is($target) && this.$month.val() <= 12 && this.$month.val() >= 1) {
+      $target.removeClass('bad-input');
+    } else if (this.$year.is($target) && this.$year.val() <= 2099 && this.$year.val() >= 2017) {
+      $target.removeClass('bad-input');
+    }
+    if (!this.checkForBadInput()) this.enableSubmit();
   },
   handlePreventBadNumbers: function(e) {
     var target = e.target;
-    if (this.$day.is(target) && this.$day.val().length >= 2) {
+    if (window.getSelection().toString() !== '') {
+    } else if (this.$day.is(target) && this.$day.val().length >= 2) {
       e.preventDefault();
     } else if (this.$month.is(target) && this.$month.val().length >= 2) {
       e.preventDefault();
@@ -460,6 +488,7 @@ app = {
     this.$description = $('#description');
     this.$submit = $('#submit');
     this.$markAsComplete = $('#mark-as-complete');
+    this.$notification = $('#notification');
     this.$form = $('form');
 
     this.todoList = Object.create(TodoList).init();

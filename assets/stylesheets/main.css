@@ -255,6 +255,7 @@ input.bad-input {
 	height: 37px;
 	box-sizing: border-box;
 	font-weight: lighter;
+	outline: none;
 }
 .button {
 	margin-left: 108px;
