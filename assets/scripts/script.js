@@ -186,8 +186,8 @@ app = {
     e.stopPropagation();
     var id = this.todoIdFromEvent(e);
     var todo = this.todoList.find(id);
-    this.populateForm(todo);
     this.showForm();
+    this.populateForm(todo);
   },
   handleCompleteToggle: function(e) {
     var id = this.todoIdFromEvent(e);
@@ -247,7 +247,7 @@ app = {
   retrieveNavCategory: function(navId) {
     var $nav = $('[data-nav-id="' + navId + '"]') || $('#all-todos');
     $nav.each((i, el) => {
-      if (this.inCompletedNav($(el)) === this.selectedNavIsCompleted) { $nav = $(el); }
+      if (this.inCompletedNav($(el)) === this.selectedNavIsCompleted) $nav = $(el);
     });
 
     return $nav;
