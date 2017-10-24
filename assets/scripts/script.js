@@ -89,20 +89,20 @@ TodoList = {
       return nav;
     });
   },
-  todoDisplayObjects: function(list) {
+  todoDisplayObjects: function(list, display) {
     if (list === 'completed') {
       list = this.completed();
-    } else if (list === undefined) {
+    } else if (list === 'notCompleted') {
       list = this.notCompleted();
     } // otherwise list is array //
 
-    return list.map(todo => {
-      return {
+    list.forEach(todo => {
+      display({
         id: todo.id,
         date: todo.displayDate(),
         title: todo.title,
         complete: todo.complete,
-      };
+      });
     });
   },
   add: function(todo) {
@@ -168,16 +168,16 @@ TodoList = {
 
 app = {
   registerHandlers: function() {
-    this.$addTodo.on('click', this.handleAddTodo.bind(this));
+    this.$addTodo.on('click', this.showForm.bind(this));
     this.$form.on('keypress', 'input', this.handlePreventBadNumbers.bind(this));
     this.$form.on('blur', 'input', this.handleBadInput.bind(this));
     this.$form.on('keyup', '.bad-input', this.handleCheckBadInputFixed.bind(this));
+    this.$markAsComplete.on('click', this.handleFormMarkComplete.bind(this));
     this.$submit.on('click', this.handleSubmit.bind(this));
     this.$tint.on('click', this.hideForm.bind(this));
     this.$todoDisplay.on('click', '.delete', this.handleDelete.bind(this));
     this.$todoDisplay.on('click', '.todo', this.handleCompleteToggle.bind(this));
     this.$todoDisplay.on('click', '.todo-title', this.handleEdit.bind(this));
-    this.$markAsComplete.on('click', this.handleFormMarkComplete.bind(this));
     this.$header.on('click', '.nav', this.handleNavSelect.bind(this));
     this.$navToggle.on('click', this.handleNavToggle.bind(this));
   },
@@ -245,7 +245,7 @@ app = {
     this.$displayCount.html(count);
   },
   retrieveNavCategory: function(navId) {
-    var $nav = $('[data-nav-id="' + navId + '"]') || $('#all-todos');
+    var $nav = $('[data-nav-id="' + navId + '"]');
     $nav.each((i, el) => {
       if (this.inCompletedNav($(el)) === this.selectedNavIsCompleted) $nav = $(el);
     });
@@ -263,7 +263,7 @@ app = {
     } else if (navId === 'Completed') {
       this.renderCompletedTodos();
     } else {
-      this.renderNavGroup($nav, navId);
+      this.renderNavGroupToDisplay($nav, navId);
     }
   },
   updateNav: function() {
@@ -288,16 +288,14 @@ app = {
     this.allTodosNav.forEach(nav => this.appendNav(nav, this.$navTodoList));
     this.completedTodosNav.forEach(nav => this.appendNav(nav, this.$navCompletedList));
   },
-  renderNavGroup: function($nav, navId) {
+  renderNavGroupToDisplay: function($nav, navId) {
     var list;
     if (!this.inCompletedNav($nav)) {
       list = this.todoList.matchDate(navId, 'notCompleted');
-      list = this.todoList.todoDisplayObjects(list);
-      this.renderListToDisplay(list);
+      list = this.todoList.todoDisplayObjects(list, this.appendTodo.bind(this));
     }
     list = this.todoList.matchDate(navId, 'completed');
-    list = this.todoList.todoDisplayObjects(list);
-    this.renderListToDisplay(list);
+    list = this.todoList.todoDisplayObjects(list, this.appendTodo.bind(this));
   },
   appendNav: function(context, list) {
     var element = this.createTemplate(this.navTemplate, context);
@@ -309,14 +307,11 @@ app = {
   },
   // TODOS DISPLAY //
   renderAllTodos: function() {
-    this.renderListToDisplay(this.todoList.todoDisplayObjects());
+    this.todoList.todoDisplayObjects('notCompleted', this.appendTodo.bind(this));
     this.renderCompletedTodos();
   },
   renderCompletedTodos: function() {
-    this.renderListToDisplay(this.todoList.todoDisplayObjects('completed'));
-  },
-  renderListToDisplay:function(list) {
-    list.forEach(todo => this.appendTodo(todo));
+    this.todoList.todoDisplayObjects('completed', this.appendTodo.bind(this));
   },
   appendTodo: function(todo) {
     var element = this.createTemplate(this.todoTemplate, todo);
@@ -328,9 +323,6 @@ app = {
   },
   clearDisplay: function() {
     this.$todoDisplay.children().remove();
-  },
-  handleAddTodo: function() {
-    this.showForm();
   },
   // FORM //
   clearForm: function() {
